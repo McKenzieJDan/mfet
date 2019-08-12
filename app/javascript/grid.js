@@ -27,6 +27,11 @@ export class BlockGrid {
   }
 
   render(el = document.querySelector('#gridEl')) {
+
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
+
     for (let x = 0; x < MAX_X; x++) {
       let id = 'col_' + x;
       let colEl = document.createElement('div');
@@ -34,7 +39,7 @@ export class BlockGrid {
       colEl.id = id;
       el.appendChild(colEl);
 
-      for (let y = MAX_Y - 1; y >= 0; y--) {
+      for (let y = this.grid[x].length-1; y >= 0; y--) {
         let block = this.grid[x][y],
           id = `block_${x}x${y}`,
           blockEl = document.createElement('div');
@@ -50,8 +55,19 @@ export class BlockGrid {
     return this;
   }
 
+  hideBlock(block) {
+    // Move y of every block above this block down by 1
+    for (let y = this.grid[block.x].length - 1; y > block.y; y--) {
+      this.grid[block.x][y].y--;
+    }
+    this.grid[block.x].splice(block.y, 1);
+  }
+
   blockClicked(e, block) {
-    console.log(e, block);
+    // this.grid[block.x][block.y];
+    this.hideBlock(block);
+    console.log(this.grid);
+    this.render();
   }
 }
 
