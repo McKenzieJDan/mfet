@@ -55,8 +55,34 @@ export class BlockGrid {
     return this;
   }
 
+  getBlock(x, y) {
+    let col = this.grid[x];
+    if (col === undefined) return undefined;
+    return col[y];
+  }
+
+  checkBlock(visitedSet, block, colour) {
+    if (block === undefined) return;
+
+    if (visitedSet.has(block)) return;
+    visitedSet.add(block);
+
+    if (block.colour != colour) return;
+    // north
+    let north = this.getBlock(block.x, block.y + 1);
+    this.checkBlock(visitedSet, north, colour);
+    // east
+    let east = this.getBlock(block.x + 1, block.y);
+    this.checkBlock(visitedSet, east, colour);
+    // south
+    let south = this.getBlock(block.x, block.y - 1);
+    this.checkBlock(visitedSet, south, colour);
+    // west
+    let west = this.getBlock(block.x - 1, block.y);
+    this.checkBlock(visitedSet, west, colour);
+  }
+
   hideBlock(block) {
-    // Move y of every block above this block down by 1
     for (let y = this.grid[block.x].length - 1; y > block.y; y--) {
       this.grid[block.x][y].y--;
     }
@@ -64,9 +90,14 @@ export class BlockGrid {
   }
 
   blockClicked(e, block) {
-    // this.grid[block.x][block.y];
-    this.hideBlock(block);
-    console.log(this.grid);
+    var visitedSet = new Set([]);
+    var colour = block.colour;
+    this.checkBlock(visitedSet, block, colour);
+    visitedSet.forEach((value, unused, visitedSet) => {
+      if (value.colour === colour) {
+        this.hideBlock(value);
+      }
+    });
     this.render();
   }
 }
